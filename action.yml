@@ -3,13 +3,13 @@ name: Pact - Publish Contract
 description: Publish a contract on pact broker
 inputs:
   directory:
-    description: Directory with pact files
+    description: Directory with pact contract files.
     required: true
   consumer_app_version:
-    description: The consumer application version
+    description: The consumer application version.
     required: true
   tag:
-    description: Tag name for consumer version. Can be specified only one times
+    description: Tag name for consumer version. Can be specified only one times.
     required: true
 runs:
   using: docker
