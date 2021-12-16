@@ -8,8 +8,8 @@ inputs:
   consumer_app_version:
     description: The consumer application version.
     required: true
-  tag:
-    description: Tag name for consumer version. Can be specified only one times.
+  branch:
+    description: Repository branch of the consumer version.
     required: true
 runs:
   using: docker
@@ -20,5 +20,8 @@ runs:
     - ${{ inputs.directory }}
     - --consumer-app-version
     - ${{ inputs.consumer_app_version }}
+    - --branch
+    - ${{ inputs.branch }}
     - --tag
-    - ${{ inputs.tag }}
+    - ${{ inputs.branch }}
+    - --no-auto-detect-version-properties

@@ -1,10 +1,18 @@
 # Pact Publish Contract Action
 
+> **CAVEATS** v2 is intended to help in [migrating from tag to branches](https://docs.pact.io/pact_broker/branches#migrating-from-tags-to-branches).
+> 
+> If ensure, use v1 if your pact publish -> verification still need to be performed using tags
+
 This action uses [pact-cli](https://github.com/pact-foundation/pact-ruby-cli) 
-docker image to perform an opinionated "can I deploy" check:
+docker image to perform an opinionated "publish contract":
 
 ```console
-$ pact broker publish <PACT_OR_DIR> --consumer-app-version <COMMIT_SHA> --tag <ENVIRONMENT>
+$ pact broker publish <PACT_OR_DIR> \
+  --consumer-app-version <GIT_COMMIT_SHA> \
+  --branch <GIT_BRANCH> \
+  --tag <GIT_BRANCH> \
+  --no-auto-detect-version-properties
 ```
 
 ## Inputs
@@ -21,9 +29,9 @@ See examples below for more info about how actually use in workflow.
 
 **Required** The consumer application version.
 
-### `tag`
+### `branch`
 
-**Required** Tag name for consumer version. Can be specified only one times
+**Required** Repository branch of the consumer version.
 
 ## Environment Variables
 
@@ -58,6 +66,13 @@ steps:
   - name: consumer contract test
     run: make test-contract-consumer
 
+  # GitHub Action provides different env var for branch name if on pull request
+  - name: Output git branch
+    id: git-branch
+    run: |
+      echo ::set-output name=head_ref::${GITHUB_HEAD_REF#refs/*/}
+      echo ::set-output name=ref::${GITHUB_REF#refs/*/}
+
   - uses: casavo/pact-publish-contract-action@v1
     env:
       PACT_BROKER_BASE_URL: ${{ secrets.PACT_BROKER_BASE_URL }}
@@ -66,5 +81,5 @@ steps:
     with:
       directory: /github/workspace/build/pacts
       consumer_app_version: ${{ github.sha }}
-      tag: staging
+      branch: ${{ steps.git-branch.outputs.head_ref || steps.git-branch.outputs.ref }}
 ```
